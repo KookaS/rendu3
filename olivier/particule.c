@@ -28,10 +28,20 @@ struct Particule
 static COULEUR couleur_particule = {0.5, 0.5, 0.5};
 static PARTICULE *tab = NULL;
 static int nb = 0;
+static double si = 0;
+
+double sum_energie(){
+  PARTICULE P;
+  double total;
+  for(size_t i = 1; i<nb; ++i){
+    P = tab[i];
+    total += P.energie;
+  }
+  return total;
+}
 
 void tamere(){
   PARTICULE P;
-  double rng;
   for(int i = 1; i<=nb; ++i){
     P = tab[i];
     bool cond = (P.position.rayon*R_PARTICULE_FACTOR >= R_PARTICULE_MIN);
@@ -39,7 +49,6 @@ void tamere(){
     if(cond && condTaMere){
       particule_decomposition(i);
     }
-    rng = rand();
   }
 }
 
