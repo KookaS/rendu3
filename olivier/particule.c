@@ -29,32 +29,57 @@ static COULEUR couleur_particule = {0.5, 0.5, 0.5};
 static PARTICULE *tab = NULL;
 static int nb = 0;
 
-void particule_decomposition(int prev_nb, int index){
+void tamere(){
+  PARTICULE P;
+  double rng;
+  for(int i = 1; i<=nb; ++i){
+    P = tab[i];
+    bool cond = (P.position.rayon*R_PARTICULE_FACTOR >= R_PARTICULE_MIN);
+    bool condTaMere = (rand()/RAND_MAX <= DECOMPOSITION_RATE);
+    if(cond && condTaMere){
+      particule_decomposition(i);
+    }
+    rng = rand();
+  }
+}
+
+void particule_decomposition(int index){
   PARTICULE * P = tab[index];
   double prevRayon = P->position->rayon;
   SD2 prevCentre = P->position->center;
   double newEnergie = (P->energie)*E_PARTICULE_FACTOR;
+
   S2D newCenter = {
     prevCentre.x + R_PARTICULE_FACTOR,
     prevCentre.y + R_PARTICULE_FACTOR
   };
+
   C2D newPos = {
     newCenter,
     prevRayon*R_PARTICULE_FACTOR
   };
+
   particule_set_particule(index, newPos, newEnergie);
-  particule_set_nombre(prev_nb+3);
-  for(uint_fast32_t i = prev_nb; i < prev_nb+3; ++i){
+  particule_set_nombre(nb+3);
+
+  S2D signs = {-1, -1};
+
+  for(uint8_t i = nb; i < nb+3; ++i){
     S2D Center = {
-      prevCentre.x + R_PARTICULE_FACTOR,
-      prevCentre.y + R_PARTICULE_FACTOR
+      prevCentre.x + R_PARTICULE_FACTOR*signs.x,
+      prevCentre.y + R_PARTICULE_FACTOR*signs.y
     };
     C2D Pos = {
       Center,
       prevRayon*R_PARTICULE_FACTOR
     };
     particule_set_particule(i, Pos, newEnergie);
+    signs.y = signs.x;
+    signs.x *= -1;
+    // - -     + -    - + 
   }
+
+  nb += 3;
 }
 
 void particule_set_nombre(int nb_part)
